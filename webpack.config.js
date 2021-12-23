@@ -1,22 +1,36 @@
+const prod = process.env.NODE_ENV === 'production';
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+
+
 module.exports = {
-  mode: 'development',
-	entry: __dirname + '/client/src/index.js',
+  mode: prod ? 'production' : 'development',
+	entry: __dirname + '/client/src/index.tsx',
 	output: {
-	  filename: 'bundle.js',
 		path: __dirname + '/client/public'
 	},
 	module: {
 		rules: [
   		{ 
-				test: /\.(js|jsx)$/,
+				test: /\.(ts|tsx)$/,
 				exclude: /node_modules/,
-				use: [{
-					loader: 'babel-loader',
-					options: {
-						presets: ['@babel/preset-env', '@babel/preset-react']
-					}
-				}] 
-			}
+				resolve: {
+					extensions: ['.ts', '.tsx', '.js', '.json']
+				},
+				use: 'ts-loader', 
+			},
+			{
+				test: /\.css$/,
+				use: [MiniCssExtractPlugin.loader, 'css-loader'],
+			},
 		]
-	}	
-}
+	},
+	devtool: prod ? undefined : 'source-map',
+	plugins: [
+		new HtmlWebpackPlugin({
+			template: 'client/public/index.html',
+		}),
+		new MiniCssExtractPlugin(),
+	],
+};
